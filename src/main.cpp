@@ -11,12 +11,7 @@ int main(int argc, char *argv[]) {
       fileName = argv[1];
     }
 
-    auto *montador = new Assembler();
-    montador->setInputFile(fileName);
-    montador->buildSymbolTable();
-    montador->buildOperandsTable();
-    montador->firstFase();
-    montador->secondFase();
-    montador->writeOutputFile();
+    auto *avengers = new Assembler(fileName);
+    avengers->assemble();
     return 0;
 }

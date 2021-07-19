@@ -1,7 +1,7 @@
 #include "montador.h"
 
-Assembler::Assembler() {
-
+Assembler::Assembler(string fileName) {
+  setInputFile(fileName);
 }
 
 bool Assembler::isNum(const string& line)
@@ -228,4 +228,12 @@ void Assembler::writeOutputFile() {
   for (auto number : numbers)
     cout << number << " ";
   cout << "\n";
+}
+
+void Assembler::assemble() {
+  buildSymbolTable();
+  buildOperandsTable();
+  firstFase();
+  secondFase();
+  writeOutputFile();
 }

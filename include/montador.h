@@ -45,35 +45,12 @@ private:
 
 public:
 
-  Assembler();
+  Assembler(string fileName);
   ~Assembler() = default;
 
-  map<string, int> getSymbolTable();
-  map<string, int> getPseudosTable();
-  map<string, int> getOperandsTable();
-
   void setInputFile(const string& fileName);
-  fstream getOutputFile();
-
-  void incrementPC();
-  void incrementPC(int inc);
-  int getPC();
-
-  void incrementAP();
-  void incrementAP(int inc);
-  int getAP();
-
-  void setPEPZero(bool val);
-  int getPEPZero();
-
-  void setPEPNegativo(bool val);
-  int getPEPNegativo();
-
-  void setRegister(int idx, int val);
-  int getRegisterVal(int idx);
 
   void buildSymbolTable();
-  void buildPseudosTable();
   void buildOperandsTable();
   void readInputFile();
   void ignoreComments();
@@ -81,6 +58,7 @@ public:
   void writeOutputFile();
   void firstFase();
   void secondFase();
+  void assemble();
 
   static bool isNum(const string& num);
   int codeGen(vector<string> token);
