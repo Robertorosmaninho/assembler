@@ -21,14 +21,16 @@ using namespace std;
 class Assembler {
 
 private:
-  map<string, string> symbolTable;
+  map<string, int> symbolTable;
   map<string, string> pseudosTable;
-  map<string, string> operandsTable;
+  map<string, int> operandsTable;
 
   fstream *inputFile;
   fstream *outputFile;
 
   vector<string> lines;
+  vector<vector<string>> tokens;
+  vector<int> numbers;
 
   /// Registradores
   int PC; //ILC? --> Contador de programas: contém o endereço da próxima
@@ -46,7 +48,7 @@ public:
   Assembler();
   ~Assembler() = default;
 
-  map<string, string> getSymbolTable();
+  map<string, int> getSymbolTable();
   map<string, string> getPseudosTable();
   map<string, string> getOperandsTable();
 
@@ -70,13 +72,14 @@ public:
   void setRegister(int idx, int val);
   int getRegisterVal(int idx);
 
-  void iniciaSymbolTable();
-  void iniciaPseudosTable();
-  void iniciaOperandsTable();
+  void buildSymbolTable();
+  void buildPseudosTable();
+  void buildOperandsTable();
   void readInputFile();
   void ignoreComments();
+  void setLinesIntoTokens();
   void writeOutputFile();
-  void fisrtFase();
+  void firstFase();
   void secondFase();
 
 };
