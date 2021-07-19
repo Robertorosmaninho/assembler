@@ -4,6 +4,14 @@ Assembler::Assembler() {
 
 }
 
+bool Assembler::isNum(const string& line)
+{
+  char* p;
+  strtol(line.c_str(), &p, 10);
+  return *p == 0;
+}
+
+
 void Assembler::setInputFile(const string& fileName) {
   fstream file(fileName);
   if (!file.is_open()) {
@@ -36,14 +44,17 @@ void Assembler::ignoreComments() {
 }
 
 void Assembler::setLinesIntoTokens() {
-  vector<string> aux;
   for (const auto& line : lines){
+    if (line.empty())
+      continue;
+    vector<string> aux;
     string token;
     istringstream ss(line);
     while(ss >> token)
       aux.push_back(token);
+    if (!aux.empty())
+      tokens.push_back(aux);
   }
-  tokens.push_back(aux);
 }
 
 void Assembler::buildSymbolTable() {
@@ -68,6 +79,10 @@ void Assembler::buildSymbolTable() {
   symbolTable["JN"] = 18;
   symbolTable["CALL"] = 19;
   symbolTable["RET"] = 20;
+
+  //PseudosInst
+  symbolTable["WORD"] = 21;
+  symbolTable["END"] = 22;
 }
 
 void Assembler::buildOperandsTable() {
@@ -75,4 +90,142 @@ void Assembler::buildOperandsTable() {
   operandsTable["R1"] = 1;
   operandsTable["R2"] = 2;
   operandsTable["R3"] = 3;
+}
+
+void Assembler::firstFase() {
+  int ilc = 0;
+
+  for (auto lineToken : tokens) {
+    auto token = lineToken;
+    try {
+      symbolTable.at(token[0]); //Tenta acessar a operação
+      ilc += (int) lineToken.size();
+    } catch (const out_of_range& e){ // Senão conseguir é pq é um label
+      string label = lineToken[0];
+      symbolTable[lineToken[0]] = (int) symbolTable.size();
+      label.pop_back();
+      ilc -= lineToken.size();
+      pseudosTable.emplace(label, ++ilc);
+    }
+
+  }
+
+}
+
+int Assembler::codeGen(vector<string> token) {
+  string op = token[0];
+  int opCode = symbolTable[op];
+  switch (opCode) {
+  case 0: //HALT
+    PC++;
+    numbers.push_back(0);
+    break;
+
+  case 1: // LOAD R M : Reg[R] ← Mem[M + PC]
+  case 2: // STORE R M : Mem[M + PC] ← Reg[R]
+    PC++;
+    numbers.push_back(opCode);
+
+    // Registrador
+    PC++;
+    numbers.push_back(operandsTable[token[1]]);
+
+
+    // Memoria
+    PC++;
+    if (isNum(token[2]))
+      numbers.push_back(stoi(token[2]));
+    else
+      numbers.push_back(pseudosTable[token[2]] - PC+1);
+    break;
+
+  case 3: // READ R : Reg[R] ← “valor lido”
+  case 4: // WRITE R : “Imprime” Reg[R]
+  case 6: // PUSH R : AP ← AP − 1; Mem[AP] ← Reg[R]
+  case 7: // POP R : Reg[R] ← Mem[AP]; AP ← AP + 1
+  case 15: // NOT R : Reg[R] ← NOT Reg[R] *
+    PC++;
+    numbers.push_back(opCode);
+
+    // Registrador
+    PC++;
+    numbers.push_back(operandsTable[token[1]]);
+    break;
+
+  case 5: // COPY R1 R2 : Reg[R1] ← Reg[R2] *
+  case 8: // ADD R1 R2 : Reg[R1] ← Reg[R1] + Reg[R2] *
+  case 9: // SUB R1 R2 : Reg[R1] ← Reg[R1] - Reg[R2] *
+  case 10: // MUL R1 R2 : Reg[R1] ← Reg[R1] * Reg[R2] *
+  case 11: // DIV R1 R2 : Reg[R1] ← dividendo(Reg[R1] / Reg[R2]) *
+  case 12: // MOD R1 R2 : Reg[R1] ← resto(Reg[R1] / Reg[R2]) *
+  case 13: // AND R1 R2 : Reg[R1] ← Reg[R1] AND Reg[R2] *
+  case 14: // OR R1 R2 : Reg[R1] ← Reg[R1] OR Reg[R2] *
+    PC++;
+    numbers.push_back(opCode);
+
+    // Registradores
+    PC++;
+    numbers.push_back(operandsTable[token[1]]);
+    PC++;
+    numbers.push_back(operandsTable[token[2]]);
+    break;
+
+  case 16: // JUMP M : PC ← PC + M
+  case 17: // JZ M : Se PEP[zero], PC ← PC + M
+  case 18: // JN M : Se PEP[negativo], PC ← PC + M
+  case 19: // CALL M : AP ← AP – 1; Mem[AP] ← PC; PC ← PC + M
+    PC++;
+    numbers.push_back(opCode);
+
+    // Memoria
+    PC++;
+    if (isNum(token[2]))
+      numbers.push_back(stoi(token[2]));
+    else
+      numbers.push_back(pseudosTable[token[2]] - PC+1);
+    break;
+  case 20: // RET : PC ← Mem[AP]; AP ← AP + 1
+    PC++;
+    numbers.push_back(opCode);
+    break;
+
+  case 21: // WORD num
+    PC++;
+    numbers.push_back(stoi(token[1]));
+    break;
+  case 22: // END
+    return -1;
+    break;
+  default: //Label: op [operand0] [operand1]
+    if (opCode > 22) { //LABEL!
+      vector<string> content(token.begin()+1, token.end());
+      codeGen(content);
+    } else {
+      cout << "OpCode " << opCode << " não encontrado!";
+      return -1;
+    }
+    break;
+  }
+  return 0;
+}
+
+void Assembler::secondFase() {
+  PC = 0;
+  int value;
+
+  for (const auto& token : tokens) {
+     value = codeGen(token);
+    if (value < 0)
+      break;
+   }
+}
+
+void Assembler::writeOutputFile() {
+  cout << "MV-EXE\n";
+  cout << "\n";
+  cout << numbers.size() << " " << 100 << " " << AP << " " << 100 << "\n";
+  cout << "\n";
+  for (auto number : numbers)
+    cout << number << " ";
+  cout << "\n";
 }

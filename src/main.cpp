@@ -13,5 +13,10 @@ int main(int argc, char *argv[]) {
 
     auto *montador = new Assembler();
     montador->setInputFile(fileName);
+    montador->buildSymbolTable();
+    montador->buildOperandsTable();
+    montador->firstFase();
+    montador->secondFase();
+    montador->writeOutputFile();
     return 0;
 }

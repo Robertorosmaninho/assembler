@@ -22,7 +22,7 @@ class Assembler {
 
 private:
   map<string, int> symbolTable;
-  map<string, string> pseudosTable;
+  map<string, int> pseudosTable;
   map<string, int> operandsTable;
 
   fstream *inputFile;
@@ -35,7 +35,7 @@ private:
   /// Registradores
   int PC; //ILC? --> Contador de programas: contém o endereço da próxima
           // instrução a ser executada;
-  int AP; // Apontador da pilha: aponta para o elemento no topo da pilha;
+  int AP = 999; // Apontador da pilha: aponta para o elemento no topo da pilha;
   int PEP[2]; // palavra de estado do processador): consiste em 2 bits que
   // armazenam o estado da última operação lógico/aritmética realizada na máquina,
   // sendo um dos bits para indicar que a última operação resultou em zero,
@@ -49,8 +49,8 @@ public:
   ~Assembler() = default;
 
   map<string, int> getSymbolTable();
-  map<string, string> getPseudosTable();
-  map<string, string> getOperandsTable();
+  map<string, int> getPseudosTable();
+  map<string, int> getOperandsTable();
 
   void setInputFile(const string& fileName);
   fstream getOutputFile();
@@ -82,6 +82,8 @@ public:
   void firstFase();
   void secondFase();
 
+  static bool isNum(const string& num);
+  int codeGen(vector<string> token);
 };
 
 #endif
