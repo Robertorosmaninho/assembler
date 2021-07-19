@@ -74,6 +74,7 @@ public:
   void iniciaPseudosTable();
   void iniciaOperandsTable();
   void readInputFile();
+  void ignoreComments();
   void writeOutputFile();
   void fisrtFase();
   void secondFase();

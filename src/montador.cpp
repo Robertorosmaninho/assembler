@@ -20,4 +20,16 @@ void Assembler::readInputFile() {
   string line;
   while (std::getline(*this->inputFile, line))
     lines.push_back(line);
+
+  ignoreComments();
+}
+
+void Assembler::ignoreComments() {
+  string aux;
+  for (auto & i : lines) {
+    string line = i;
+    auto pos = line.find(';');
+    if (pos != std::string::npos)
+      i = line.substr(0, pos);
+  }
 }
