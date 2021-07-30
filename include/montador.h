@@ -3,6 +3,9 @@
 
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <stdio.h>
+#include <ctype.h>
 #include <map>
 #include <sstream>
 #include <istream>

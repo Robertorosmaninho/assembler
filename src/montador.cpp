@@ -6,11 +6,20 @@ Assembler::Assembler(string fileName) {
 
 bool Assembler::isNum(const string& line)
 {
-  char* p;
-  strtol(line.c_str(), &p, 10);
-  return *p == 0;
+ for (const char c : line)
+   if (!isdigit(c))
+     return false;
+
+ return true;
 }
 
+string Assembler::cleanString(string str){
+  string new_str;
+  for (char & c : str)
+    if (isdigit(c) || isalpha(c))
+      new_str.push_back(c);
+  return new_str;
+}
 
 void Assembler::setInputFile(const string& fileName) {
   fstream file(fileName);
@@ -50,8 +59,13 @@ void Assembler::setLinesIntoTokens() {
     vector<string> aux;
     string token;
     istringstream ss(line);
-    while(ss >> token)
-      aux.push_back(token);
+    while(ss >> token) {
+      auto in = cleanString(token);
+      if (!in.empty()) {
+        aux.push_back(in);
+      }
+    }
+
     if (!aux.empty())
       tokens.push_back(aux);
   }
@@ -103,9 +117,11 @@ void Assembler::firstFase() {
     } catch (const out_of_range& e){ // Senão conseguir é pq é um label
       string label = lineToken[0];
       symbolTable[lineToken[0]] = (int) symbolTable.size();
-      label.pop_back();
-      ilc -= lineToken.size();
-      pseudosTable.emplace(label, ++ilc);
+      pseudosTable.emplace(label, ilc);
+      if (lineToken[1] == "WORD") //PseudInst
+        ilc++; // Só o valor
+      else if (lineToken[1] != "END")
+        ilc += (int) (lineToken.size() - 1); // op + operands - label
     }
 
   }
@@ -136,7 +152,7 @@ int Assembler::codeGen(vector<string> token) {
     if (isNum(token[2]))
       numbers.push_back(stoi(token[2]));
     else
-      numbers.push_back(pseudosTable[token[2]] - PC+1);
+      numbers.push_back(pseudosTable[token[2]] - PC);
     break;
 
   case 3: // READ R : Reg[R] ← “valor lido”
@@ -179,10 +195,10 @@ int Assembler::codeGen(vector<string> token) {
 
     // Memoria
     PC++;
-    if (isNum(token[2]))
+    if (isNum(token[1]))
       numbers.push_back(stoi(token[2]));
     else
-      numbers.push_back(pseudosTable[token[2]] - PC+1);
+      numbers.push_back(pseudosTable[token[1]] - PC);
     break;
   case 20: // RET : PC ← Mem[AP]; AP ← AP + 1
     PC++;
@@ -199,7 +215,8 @@ int Assembler::codeGen(vector<string> token) {
   default: //Label: op [operand0] [operand1]
     if (opCode > 22) { //LABEL!
       vector<string> content(token.begin()+1, token.end());
-      codeGen(content);
+      if (!content.empty())
+        codeGen(content);
     } else {
       cout << "OpCode " << opCode << " não encontrado!";
       return -1;
@@ -214,7 +231,7 @@ void Assembler::secondFase() {
   int value;
 
   for (const auto& token : tokens) {
-     value = codeGen(token);
+    value = codeGen(token);
     if (value < 0)
       break;
    }
