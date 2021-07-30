@@ -1,0 +1,16 @@
+main:
+    READ R1 ; R1 = x
+    READ R0 ; R0 = y
+    PUSH R1 ; Empilha x
+    PUSH R0 ; Empilha y
+    CALL add_xy
+    WRITE R0
+    HALT
+ 
+add_xy:
+    POP R2 ; R2 = endereço de retorno, vamos desempilhar temporariamente
+    POP R1 ; R1 = x
+    POP R0 ; R0 = y
+    PUSH R2 ; Reempilha o endereço de retorno, pra poder usar a instrução RET
+    ADD R0 R1 ; R0 = x + y
+    RET
