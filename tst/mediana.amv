@@ -1,0 +1,101 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;; Programa que lê 5 números e imprime a mediana deles ;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+READ    R0 
+STORE   R0 mem0 
+READ    R0 
+STORE   R0 mem1 
+READ    R0 
+STORE   R0 mem2 
+READ    R0 
+STORE   R0 mem3 
+READ    R1 
+STORE   R1 mem4 ; lendo e armazenando na memória
+
+;;;;;;;;;;;;;;;;Ordenação dos números;;;;;;;;;;;;;;;;
+
+JUMP compara1
+
+compara1: LOAD R1 mem0    ;Carrega o primeiro número                             
+          LOAD R0 mem1
+          COPY    R2 R1    ;Salva R1
+          SUB     R1 R0    ;Subtrai R0 de R1 para fazer a comparação
+          JN      troca1   ;se R1>R0, troca os dois de posição
+          JUMP    compara2 ;se R1<R0, pula para a próxima comparação 
+
+troca1: STORE   R2 mem1
+        STORE   R0 mem0
+        JUMP    compara2 ;repete a lógica para cada par 
+
+compara2: LOAD    R1 mem1
+          LOAD    R0 mem2
+          COPY    R2 R1
+          SUB     R1 R0
+          JN      troca2
+          JUMP    compara3
+
+troca2: STORE   R2 mem2
+        STORE   R0 mem1
+        JUMP    compara3
+
+compara3: LOAD    R1 mem2
+          LOAD    R0 mem3
+          COPY    R2 R1
+          SUB     R1 R0
+          JN      troca3
+          JUMP    compara4
+
+troca3: STORE   R2 mem3
+        STORE   R0 mem2
+        JUMP    compara4
+
+compara4: LOAD    R1 mem3
+          LOAD    R0 mem4
+          COPY    R2 R1
+          SUB     R1 R0
+          JN      troca4
+          JUMP    cont 
+
+troca4: STORE   R2 mem4
+        STORE   R0 mem3
+        JUMP cont
+
+cont:    LOAD R1 const1                  
+        LOAD R0 const1                  
+        ADD     R3 R1   
+        COPY    R2 R3                   
+        SUB     R2 R0
+        JZ      compara1                     
+        LOAD R0 const2
+        ADD     R3 R1
+        COPY    R2 R3
+        SUB     R2 R0
+        JZ      compara2
+        LOAD R0 const3
+        ADD     R3 R1
+        COPY    R2 R3
+        SUB     R2 R0
+        JZ      compara3
+        LOAD R0 const4
+        ADD     R3 R1
+        COPY    R2 R3
+        SUB     R2 R0
+        JZ      compara4
+        JUMP print
+
+print:  LOAD R0 mem2
+        WRITE  R0
+        HALT
+
+const1: WORD 1
+const2: WORD 2
+const3: WORD 3
+const4: WORD 4
+mem0:   WORD 0
+mem1:   WORD 1
+mem2:   WORD 2
+mem3:   WORD 3
+mem4:   WORD 4
+
+END
