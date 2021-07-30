@@ -64,6 +64,7 @@ public:
   void assemble();
 
   static bool isNum(const string& num);
+  string cleanString(string str);
   int codeGen(vector<string> token);
 };
 
