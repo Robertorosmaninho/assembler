@@ -1,0 +1,28 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;; Programa que lê um inteiro "N" e imprime o N-ésimo termo da sequência de Fibonacci ;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+READ R0                 ; Lê o inteiro N e armazena no registrador 0
+LOAD R1 const1          ; Carrega 1 no registrador 1
+LOAD R2 const1          ; Carrega 1 no registrador 2
+LOAD R3 const0          ; Carrega 0 no registrador 3
+SUB R0 R1               ; N-1
+JZ print1               ; Caso N=1
+
+loop: SUB R0 R1         ; Contador (decrementa N)
+      JZ print          ; Imprimir
+      STORE R2 const0   ; Guarda o último valor na memória
+      ADD R2 R3         ; Soma os dois termos anteriores no registrador 2
+      LOAD R3 const0    ; Guarda o valor no registrador 3
+      JUMP loop         ; Volta para o loop para calcular próximo termo
+
+print: WRITE R2         ; Imprime o resultado para N>1
+       JUMP final;      ; Pula para o final
+
+print1: WRITE R3        ; Imprime o resultado para N=1
+final: HALT             ; Finaliza a execução do programa
+
+const0: WORD 0
+const1: WORD 1          
+END
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
