@@ -196,7 +196,7 @@ int Assembler::codeGen(vector<string> token) {
     // Memoria
     PC++;
     if (isNum(token[1]))
-      numbers.push_back(stoi(token[2]));
+      numbers.push_back(stoi(token[1]));
     else
       numbers.push_back(pseudosTable[token[1]] - PC);
     break;

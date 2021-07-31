@@ -29,7 +29,6 @@ private:
   map<string, int> operandsTable;
 
   fstream *inputFile;
-  fstream *outputFile;
 
   vector<string> lines;
   vector<vector<string>> tokens;
@@ -39,12 +38,6 @@ private:
   int PC; //ILC? --> Contador de programas: contém o endereço da próxima
           // instrução a ser executada;
   int AP = 999; // Apontador da pilha: aponta para o elemento no topo da pilha;
-  int PEP[2]; // palavra de estado do processador): consiste em 2 bits que
-  // armazenam o estado da última operação lógico/aritmética realizada na máquina,
-  // sendo um dos bits para indicar que a última operação resultou em zero,
-  // e outro bit para indicar que a última operação resultou num resultado negativo;
-
-  int R[4]; // Registradores de propósito geral R0, R1, R2, R3
 
 public:
 
